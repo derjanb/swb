@@ -11,4 +11,4 @@ Because other minimal web browsers are not base on the webkit2 API.
 The webkit2 API is where all the development takes place.
 
 ## Settings
-The home page can be changed in config.h. Rebuild the browser for the change to take effect.
+Settings are changed by editing config.h and rebuilding the browser.
