@@ -7,7 +7,7 @@ A minimal web browser based on webkitgtk.
 Almost useless. It's a work in progress.
 
 ## Why?
-Because other minimal web browsers are not base on the webkit2 API.
+Because other minimal web browsers are not based on the webkit2 API.
 The webkit2 API is where all the development takes place.
 
 ## Settings
