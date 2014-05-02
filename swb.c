@@ -133,63 +133,78 @@ gboolean key_press_event_handler(GtkWidget *window,
 
 	gdk_event_get_keyval(event, &keyval);
 
-	switch(keyval)
+	if(b->mode == COMMAND || keyval == COMMAND_MODE_KEY)
 	{
-		case OPEN_KEY:
-			{
-				handled = TRUE;
-				char buf[BUF_LEN];
-				char *url = read_url(buf);
-				if(url != NULL)
+		switch(keyval)
+		{
+			case OPEN_KEY:
 				{
-					webkit_web_view_load_uri(GET_CURRENT_WEB_VIEW(b),
-							url);
+					handled = TRUE;
+					char buf[BUF_LEN];
+					char *url = read_url(buf);
+					if(url != NULL)
+					{
+						webkit_web_view_load_uri(GET_CURRENT_WEB_VIEW(b),
+								url);
+					}
+					break;
 				}
+			case TABOPEN_KEY:
+				{
+					handled = TRUE;
+					char buf[BUF_LEN];
+					char *url = read_url(buf);
+					if(url != NULL)
+					{
+						webkit_web_view_load_uri(new_tab(b),
+								url);
+					}
+					break;
+				}
+			case CLOSE_TAB_KEY:
+				{
+					handled = TRUE;
+					if(gtk_notebook_get_n_pages(GTK_NOTEBOOK(b->notebook)) > 1)
+					{
+						int cur_page = gtk_notebook_get_current_page(GTK_NOTEBOOK(b->notebook));
+						WebKitWebView *wv = GET_CURRENT_WEB_VIEW(b);
+						gtk_notebook_prev_page(GTK_NOTEBOOK(b->notebook));
+						gtk_notebook_remove_page(GTK_NOTEBOOK(b->notebook), cur_page);
+						gtk_widget_destroy(GTK_WIDGET(wv));
+					}
+					break;
+				}
+			case FORWARD_KEY:
+				{
+					handled = TRUE;
+					if(webkit_web_view_can_go_forward(GET_CURRENT_WEB_VIEW(b)))
+					{
+						webkit_web_view_go_forward(GET_CURRENT_WEB_VIEW(b));
+					}
+					break;
+				}
+			case BACKWARD_KEY:
+				{
+					handled = TRUE;
+					if(webkit_web_view_can_go_back(GET_CURRENT_WEB_VIEW(b)))
+					{
+						webkit_web_view_go_back(GET_CURRENT_WEB_VIEW(b));
+					}
 				break;
 			}
-		case TABOPEN_KEY:
-			{
-				handled = TRUE;
-				char buf[BUF_LEN];
-				char *url = read_url(buf);
-				if(url != NULL)
+			case INPUT_MODE_KEY:
 				{
-					webkit_web_view_load_uri(new_tab(b),
-							url);
+					handled = TRUE;
+					b->mode = INPUT;
+					break;
 				}
-				break;
-			}
-		case CLOSE_TAB_KEY:
-			{
-				handled = TRUE;
-				if(gtk_notebook_get_n_pages(GTK_NOTEBOOK(b->notebook)) > 1)
+			case COMMAND_MODE_KEY:
 				{
-					int cur_page = gtk_notebook_get_current_page(GTK_NOTEBOOK(b->notebook));
-					WebKitWebView *wv = GET_CURRENT_WEB_VIEW(b);
-					gtk_notebook_prev_page(GTK_NOTEBOOK(b->notebook));
-					gtk_notebook_remove_page(GTK_NOTEBOOK(b->notebook), cur_page);
-					gtk_widget_destroy(GTK_WIDGET(wv));
+					handled = TRUE;
+					b->mode = COMMAND;
+					break;
 				}
-				break;
-			}
-		case FORWARD_KEY:
-			{
-				handled = TRUE;
-				if(webkit_web_view_can_go_forward(GET_CURRENT_WEB_VIEW(b)))
-				{
-					webkit_web_view_go_forward(GET_CURRENT_WEB_VIEW(b));
-				}
-				break;
-			}
-		case BACKWARD_KEY:
-			{
-				handled = TRUE;
-				if(webkit_web_view_can_go_back(GET_CURRENT_WEB_VIEW(b)))
-				{
-					webkit_web_view_go_back(GET_CURRENT_WEB_VIEW(b));
-				}
-				break;
-			}
+		}
 	}
 	DEBUGARG("key_press_event_signal_handler returns %d", handled);
 	return handled;

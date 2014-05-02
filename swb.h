@@ -5,6 +5,7 @@ typedef struct
 	GtkWidget *window;
 	GtkWidget *notebook;
 	WebKitWebContext *web_context;
+	enum {INPUT, COMMAND} mode;
 } Browser;
 
 WebKitWebView *new_web_view(Browser *b);
