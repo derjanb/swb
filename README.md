@@ -12,3 +12,6 @@ The webkit2 API is where all the development takes place.
 
 ## Settings
 Settings are changed by editing config.h and rebuilding the browser.
+
+## Ad-blocking?
+I use a custom style sheet for this, it works very well: http://www.gozer.org/mozilla/ad_blocking/css/ad_blocking.css.
