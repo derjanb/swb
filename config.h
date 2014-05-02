@@ -2,6 +2,8 @@
 
 #define COOKIE_FILE "/home/simon/.config/swb/cookies"
 
+#define STYLESHEET_FILE "/home/simon/.config/swb/style.css"
+
 #define HISTORY_FILE "/home/simon/.config/swb/history"
 #define READ_URL_CMD "sqlite3 " HISTORY_FILE " \"select url from history order by hits desc;\" | dmenu"
 

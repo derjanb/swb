@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <gtk/gtk.h>
 #include <sqlite3.h>
 #include <webkit2/webkit2.h>
@@ -32,7 +33,6 @@ int main (int argc, char *argv[])
 WebKitWebView *new_web_view(Browser *b)
 {
 	WebKitWebView *wv = WEBKIT_WEB_VIEW(webkit_web_view_new_with_context(b->web_context));
-	g_object_ref(GTK_WIDGET(wv));
 	g_signal_connect(wv, "create", G_CALLBACK(create_signal_handler), b);
 	g_signal_connect(wv, "decide_policy", G_CALLBACK(decide_policy_signal_handler), b);
 	g_signal_connect(wv, "load_changed", G_CALLBACK(load_changed_signal_handler), b);
@@ -190,7 +190,6 @@ gboolean key_press_event_handler(GtkWidget *window,
 				}
 				break;
 			}
-
 	}
 	DEBUGARG("key_press_event_signal_handler returns %d", handled);
 	return handled;
@@ -256,6 +255,25 @@ void setup_browser(Browser *b)
 	//create webview, put it in notebook and load home page
 	gtk_notebook_append_page(GTK_NOTEBOOK(b->notebook), GTK_WIDGET(new_web_view(b)), NULL);
 	webkit_web_view_load_uri(GET_CURRENT_WEB_VIEW(b), HOME_PAGE);
+
+	//set custom stylesheet for webviewgroup
+	FILE *style_css_fd = fopen(STYLESHEET_FILE, "r");
+	fseek(style_css_fd, 0L, SEEK_END);
+	int css_size = ftell(style_css_fd);
+	char *css = malloc(css_size+1);
+	fseek(style_css_fd, 0L, SEEK_SET);
+	fread(css, sizeof(char), css_size, style_css_fd);
+	css[css_size] = '\0';
+	fclose(style_css_fd);
+	webkit_web_view_group_add_user_style_sheet(
+	webkit_web_view_get_group(WEBKIT_WEB_VIEW(GET_CURRENT_WEB_VIEW(b))),
+	css,
+	NULL,
+	NULL,
+	NULL,
+	WEBKIT_INJECTED_CONTENT_FRAMES_ALL);
+	free(css);
+
 
 	//create a gtk window
 	b->window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
