@@ -275,22 +275,24 @@ void setup_browser(Browser *b)
 
 	//set custom stylesheet for webviewgroup
 	FILE *style_css_fd = fopen(STYLESHEET_FILE, "r");
-	fseek(style_css_fd, 0L, SEEK_END);
-	int css_size = ftell(style_css_fd);
-	char *css = malloc(css_size+1);
-	fseek(style_css_fd, 0L, SEEK_SET);
-	fread(css, sizeof(char), css_size, style_css_fd);
-	css[css_size] = '\0';
-	fclose(style_css_fd);
-	webkit_web_view_group_add_user_style_sheet(
-	webkit_web_view_get_group(WEBKIT_WEB_VIEW(GET_CURRENT_WEB_VIEW(b))),
-	css,
-	NULL,
-	NULL,
-	NULL,
-	WEBKIT_INJECTED_CONTENT_FRAMES_ALL);
-	free(css);
-
+	if(style_css_fd!=NULL)
+	{
+		fseek(style_css_fd, 0L, SEEK_END);
+		int css_size = ftell(style_css_fd);
+		char *css = malloc(css_size+1);
+		fseek(style_css_fd, 0L, SEEK_SET);
+		fread(css, sizeof(char), css_size, style_css_fd);
+		css[css_size] = '\0';
+		fclose(style_css_fd);
+		webkit_web_view_group_add_user_style_sheet(
+		webkit_web_view_get_group(WEBKIT_WEB_VIEW(GET_CURRENT_WEB_VIEW(b))),
+		css,
+		NULL,
+		NULL,
+		NULL,
+		WEBKIT_INJECTED_CONTENT_FRAMES_ALL);
+		free(css);
+	}
 
 	//create a gtk window
 	b->window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
