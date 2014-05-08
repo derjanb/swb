@@ -294,6 +294,17 @@ void setup_browser(Browser *b)
 		free(css);
 	}
 
+	GtkCssProvider *css_provider = gtk_css_provider_new();
+	gtk_style_context_add_provider_for_screen(
+			gdk_display_get_default_screen(
+				gdk_display_get_default()),
+			GTK_STYLE_PROVIDER(css_provider),
+			GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+	gtk_css_provider_load_from_path(css_provider,
+			BROWSER_STYLE,
+			NULL);
+	g_object_unref(css_provider);
+
 	//create a gtk window
 	b->window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 
