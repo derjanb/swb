@@ -10,7 +10,7 @@ typedef struct
 
 WebKitWebView *new_web_view(Browser *b);
 WebKitWebView *new_tab(Browser *b);
-char *read_url(char *buf);
+char *read_url(char *buf, Browser *b);
 
 void setup_browser(Browser *b);
 gboolean decide_policy_signal_handler(WebKitWebView *web_view,

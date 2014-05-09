@@ -8,7 +8,7 @@
 #define BROWSER_STYLE "/home/simon/.config/swb/browser.css"
 
 #define HISTORY_FILE "/home/simon/.config/swb/history"
-#define READ_URL_CMD "sqlite3 " HISTORY_FILE " \"select url from history order by hits desc;\" | dmenu"
+#define READ_URL_CMD(CUR_URL) g_strconcat("echo ", CUR_URL, " $(sqlite3 ", HISTORY_FILE, " \"select url from history order by hits desc;\") | tr -s ' ' '\n' | dmenu", (char*)0)
 
 #define OPEN_KEY GDK_KEY_o
 #define TABOPEN_KEY GDK_KEY_t

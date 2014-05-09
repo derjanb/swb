@@ -50,11 +50,12 @@ WebKitWebView *new_tab(Browser *b)
 	return wv;
 }
 
-char *read_url(char *buf)
+char *read_url(char *buf, Browser *b)
 {
-	FILE *url_command_stream = popen(READ_URL_CMD, "r");
-
-	DEBUGARG("%s", READ_URL_CMD);
+	gchar *command = READ_URL_CMD(webkit_web_view_get_uri(GET_CURRENT_WEB_VIEW(b)));
+	FILE *url_command_stream = popen(command, "r");
+	fprintf(stderr, "%s\n", command);
+	g_free(command);
 
 	char *url = NULL;
 
@@ -134,7 +135,7 @@ void load_changed_signal_handler(WebKitWebView *wv,
 bool open_page(Browser *b)
 {
 	char buf[BUF_LEN];
-	char *url = read_url(buf);
+	char *url = read_url(buf, b);
 	if(url != NULL)
 	{
 		webkit_web_view_load_uri(GET_CURRENT_WEB_VIEW(b),
@@ -150,7 +151,7 @@ bool open_page(Browser *b)
 bool tabopen_page(Browser *b)
 {
 	char buf[BUF_LEN];
-	char *url = read_url(buf);
+	char *url = read_url(buf, b);
 	if(url != NULL)
 	{
 		webkit_web_view_load_uri(new_tab(b),
