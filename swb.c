@@ -77,6 +77,29 @@ char *read_url(char *buf)
 	return url;
 }
 
+void set_tab_title(Browser *b, const gchar *title)
+{
+	gtk_notebook_set_tab_label_text(GTK_NOTEBOOK(b->notebook),
+			GTK_WIDGET(GET_CURRENT_WEB_VIEW(b)),
+			title);
+}
+
+bool save_history(Browser *b, const gchar *url)
+{
+	sqlite3 *db;
+	bool sucess = sqlite3_open(HISTORY_FILE, &db) == 0;
+	if(sucess)
+	{
+		char sql[BUF_LEN];
+		sprintf(sql, "CREATE TABLE IF NOT EXISTS history(url varchar primary key, hits int);"\
+				"INSERT OR IGNORE INTO history VALUES(\"%s\", 0);"\
+				"UPDATE history SET hits = hits + 1 WHERE \"%s\"=url", url, url);
+		sucess &= SQLITE_OK == sqlite3_exec(db, sql, NULL, NULL, NULL);
+	}
+	sqlite3_close(db);
+	return sucess;
+}
+
 void load_changed_signal_handler(WebKitWebView *wv,
 		WebKitLoadEvent load_event,
 		gpointer user_data)
@@ -89,29 +112,14 @@ void load_changed_signal_handler(WebKitWebView *wv,
 	{
 		case WEBKIT_LOAD_STARTED:
 			{
-				gtk_notebook_set_tab_label_text(GTK_NOTEBOOK(b->notebook),
-						GTK_WIDGET(GET_CURRENT_WEB_VIEW(b)),
-						"Loading");
+				set_tab_title(b, "Loading");
 				break;
 			}
 		case WEBKIT_LOAD_FINISHED:
 			{
-				gtk_notebook_set_tab_label_text(GTK_NOTEBOOK(b->notebook),
-						GTK_WIDGET(GET_CURRENT_WEB_VIEW(b)),
-						webkit_web_view_get_title(wv));
-
-				//store url in history file
-				sqlite3 *db;
-				if(sqlite3_open(HISTORY_FILE, &db) == 0)
-				{
-					const char *url = webkit_web_view_get_uri(wv);
-					char sql[BUF_LEN];
-					sprintf(sql, "CREATE TABLE IF NOT EXISTS history(url varchar primary key, hits int);"\
-							"INSERT OR IGNORE INTO history VALUES(\"%s\", 0);"\
-							"UPDATE history SET hits = hits + 1 WHERE \"%s\"=url", url, url);
-					sqlite3_exec(db, sql, NULL, NULL, NULL);
-				}
-				sqlite3_close(db);
+				set_tab_title(b, webkit_web_view_get_title(wv));
+				const char *url = webkit_web_view_get_uri(wv);
+				save_history(b, url);
 				break;
 			}
 		default:
@@ -122,6 +130,82 @@ void load_changed_signal_handler(WebKitWebView *wv,
 
 	DEBUG("load_changed_signal_handler returned");
 }
+
+bool open_page(Browser *b)
+{
+	char buf[BUF_LEN];
+	char *url = read_url(buf);
+	if(url != NULL)
+	{
+		webkit_web_view_load_uri(GET_CURRENT_WEB_VIEW(b),
+				url);
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool tabopen_page(Browser *b)
+{
+	char buf[BUF_LEN];
+	char *url = read_url(buf);
+	if(url != NULL)
+	{
+		webkit_web_view_load_uri(new_tab(b),
+				url);
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool close_tab(Browser *b)
+{
+	if(gtk_notebook_get_n_pages(GTK_NOTEBOOK(b->notebook)) > 1)
+	{
+		int cur_page = gtk_notebook_get_current_page(GTK_NOTEBOOK(b->notebook));
+		WebKitWebView *wv = GET_CURRENT_WEB_VIEW(b);
+		gtk_notebook_prev_page(GTK_NOTEBOOK(b->notebook));
+		gtk_notebook_remove_page(GTK_NOTEBOOK(b->notebook), cur_page);
+		gtk_widget_destroy(GTK_WIDGET(wv));
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool go_forward(Browser *b)
+{
+	if(webkit_web_view_can_go_forward(GET_CURRENT_WEB_VIEW(b)))
+	{
+		webkit_web_view_go_forward(GET_CURRENT_WEB_VIEW(b));
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool go_back(Browser *b)
+{
+	if(webkit_web_view_can_go_back(GET_CURRENT_WEB_VIEW(b)))
+	{
+		webkit_web_view_go_back(GET_CURRENT_WEB_VIEW(b));
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 gboolean key_press_event_handler(GtkWidget *window,
 		GdkEvent *event,
 		gpointer user_data)
@@ -142,58 +226,33 @@ gboolean key_press_event_handler(GtkWidget *window,
 			case OPEN_KEY:
 				{
 					handled = TRUE;
-					char buf[BUF_LEN];
-					char *url = read_url(buf);
-					if(url != NULL)
-					{
-						webkit_web_view_load_uri(GET_CURRENT_WEB_VIEW(b),
-								url);
-					}
+					open_page(b);
 					break;
 				}
 			case TABOPEN_KEY:
 				{
 					handled = TRUE;
-					char buf[BUF_LEN];
-					char *url = read_url(buf);
-					if(url != NULL)
-					{
-						webkit_web_view_load_uri(new_tab(b),
-								url);
-					}
+					tabopen_page(b);
 					break;
 				}
 			case CLOSE_TAB_KEY:
 				{
 					handled = TRUE;
-					if(gtk_notebook_get_n_pages(GTK_NOTEBOOK(b->notebook)) > 1)
-					{
-						int cur_page = gtk_notebook_get_current_page(GTK_NOTEBOOK(b->notebook));
-						WebKitWebView *wv = GET_CURRENT_WEB_VIEW(b);
-						gtk_notebook_prev_page(GTK_NOTEBOOK(b->notebook));
-						gtk_notebook_remove_page(GTK_NOTEBOOK(b->notebook), cur_page);
-						gtk_widget_destroy(GTK_WIDGET(wv));
-					}
+					close_tab(b);
 					break;
 				}
 			case FORWARD_KEY:
 				{
 					handled = TRUE;
-					if(webkit_web_view_can_go_forward(GET_CURRENT_WEB_VIEW(b)))
-					{
-						webkit_web_view_go_forward(GET_CURRENT_WEB_VIEW(b));
-					}
+					go_forward(b);
 					break;
 				}
 			case BACKWARD_KEY:
 				{
 					handled = TRUE;
-					if(webkit_web_view_can_go_back(GET_CURRENT_WEB_VIEW(b)))
-					{
-						webkit_web_view_go_back(GET_CURRENT_WEB_VIEW(b));
-					}
-				break;
-			}
+					go_back(b);
+					break;
+				}
 			case INPUT_MODE_KEY:
 				{
 					handled = TRUE;

@@ -25,3 +25,9 @@ gboolean key_press_event_handler(GtkWidget *window,
 void load_changed_signal_handler(WebKitWebView *wv,
 		WebKitLoadEvent load_event,
 		gpointer user_data);
+
+bool go_back(Browser *b);
+bool go_forward(Browser *b);
+bool close_tab(Browser *b);
+bool tabopen_page(Browser *b);
+bool open_page(Browser *b);
