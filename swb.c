@@ -8,14 +8,8 @@
 #include <webkit2/webkit2.h>
 #include "swb.h"
 #include "config.h"
-
-#define GET_CURRENT_WEB_VIEW(browser) \
-	WEBKIT_WEB_VIEW(\
-			gtk_notebook_get_nth_page(GTK_NOTEBOOK(browser->notebook),\
-			gtk_notebook_get_current_page(GTK_NOTEBOOK(browser->notebook))))
-
-#define DEBUGARG(format, ...) fprintf(stderr, format "\n", ##__VA_ARGS__)
-#define DEBUG(format) fprintf(stderr, format "\n")
+#include "helpers.h"
+#include "handlers.h"
 
 int main (int argc, char *argv[])
 {
@@ -51,96 +45,7 @@ WebKitWebView *new_tab(Browser *b)
 	return wv;
 }
 
-char *read_url(char *buf, Browser *b)
-{
-	gchar *command = READ_URL_CMD(webkit_web_view_get_uri(GET_CURRENT_WEB_VIEW(b)));
-	FILE *url_command_stream = popen(command, "r");
-	fprintf(stderr, "%s\n", command);
-	g_free(command);
 
-	char *url = NULL;
-
-	if(url_command_stream != NULL)
-	{
-		strcpy(buf,"http://");
-		if(fgets(buf+strlen("http://"), BUF_LEN-1-strlen("http://"), url_command_stream) !=NULL)
-		{
-			if(strncmp("http", buf+strlen("http://"), strlen("http")) == 0)
-			{
-				url = buf+strlen("http://");
-			}
-			else
-			{
-				url = buf;
-			}
-		}
-	}
-	pclose(url_command_stream);
-	return url;
-}
-
-void update_title_signal_handler(GObject *gobj, GParamSpec *p, gpointer user_data)
-{
-	Browser *b = (Browser *)user_data;
-	WebKitWebView *wv = (WebKitWebView *)gobj;
-	if(webkit_web_view_get_title(wv)!=NULL)
-	{
-		set_tab_title(b, wv, webkit_web_view_get_title(wv));
-	}
-}
-
-void set_tab_title(Browser *b, WebKitWebView *wv, const gchar *title)
-{
-	gtk_notebook_set_tab_label_text(GTK_NOTEBOOK(b->notebook),
-			GTK_WIDGET(wv),
-			title);
-}
-
-bool save_history(Browser *b, const gchar *url)
-{
-	sqlite3 *db;
-	bool sucess = sqlite3_open(HISTORY_FILE, &db) == 0;
-	if(sucess)
-	{
-		char sql[BUF_LEN];
-		sprintf(sql, "CREATE TABLE IF NOT EXISTS history(url varchar primary key, hits int);"\
-				"INSERT OR IGNORE INTO history VALUES(\"%s\", 0);"\
-				"UPDATE history SET hits = hits + 1 WHERE \"%s\"=url", url, url);
-		sucess &= SQLITE_OK == sqlite3_exec(db, sql, NULL, NULL, NULL);
-	}
-	sqlite3_close(db);
-	return sucess;
-}
-
-void load_changed_signal_handler(WebKitWebView *wv,
-		WebKitLoadEvent load_event,
-		gpointer user_data)
-{
-	DEBUG("load_changed_signal_handler entered");
-
-	Browser *b = (Browser *)user_data;
-
-	switch (load_event)
-	{
-		case WEBKIT_LOAD_STARTED:
-			{
-				set_tab_title(b, wv, "Loading");
-				break;
-			}
-		case WEBKIT_LOAD_FINISHED:
-			{
-				const char *url = webkit_web_view_get_uri(wv);
-				save_history(b, url);
-				break;
-			}
-		default:
-			{
-				break;
-			}
-	}
-
-	DEBUG("load_changed_signal_handler returned");
-}
 
 bool open_page(Browser *b)
 {
@@ -215,106 +120,6 @@ bool go_back(Browser *b)
 	{
 		return false;
 	}
-}
-
-gboolean key_press_event_handler(GtkWidget *window,
-		GdkEvent *event,
-		gpointer user_data)
-{
-	DEBUG("key_press_event_signal_handler entered");
-
-	Browser *b = (Browser *)user_data;
-	gboolean handled = FALSE;
-
-	guint keyval;
-
-	gdk_event_get_keyval(event, &keyval);
-
-	if(b->mode == COMMAND || keyval == COMMAND_MODE_KEY)
-	{
-		switch(keyval)
-		{
-			case OPEN_KEY:
-				{
-					handled = TRUE;
-					open_page(b);
-					break;
-				}
-			case TABOPEN_KEY:
-				{
-					handled = TRUE;
-					tabopen_page(b);
-					break;
-				}
-			case CLOSE_TAB_KEY:
-				{
-					handled = TRUE;
-					close_tab(b);
-					break;
-				}
-			case FORWARD_KEY:
-				{
-					handled = TRUE;
-					go_forward(b);
-					break;
-				}
-			case BACKWARD_KEY:
-				{
-					handled = TRUE;
-					go_back(b);
-					break;
-				}
-			case INPUT_MODE_KEY:
-				{
-					handled = TRUE;
-					b->mode = INPUT;
-					break;
-				}
-			case COMMAND_MODE_KEY:
-				{
-					handled = TRUE;
-					b->mode = COMMAND;
-					break;
-				}
-		}
-	}
-	DEBUGARG("key_press_event_signal_handler returns %d", handled);
-	return handled;
-}
-
-GtkWidget* create_signal_handler(WebKitWebView *web_view,
-		gpointer user_data)
-{
-	DEBUG("create_signal_handler entered");
-
-	Browser *b=(Browser *)user_data;
-
-	WebKitWebView *wv = new_tab(b);
-
-	DEBUG("create_signal_handler returns");
-	return GTK_WIDGET(wv);
-}
-
-gboolean decide_policy_signal_handler(WebKitWebView *web_view,
-		WebKitPolicyDecision *decision,
-		WebKitPolicyDecisionType type,
-		gpointer user_data)
-{
-	DEBUG("decide_policy_signal_handler entered");
-
-	gboolean handled = FALSE;
-
-	switch(type)
-	{
-		case WEBKIT_POLICY_DECISION_TYPE_NEW_WINDOW_ACTION:
-			webkit_policy_decision_use(decision);
-			handled = TRUE;
-			break;
-		default:
-			break;
-	}
-	DEBUGARG("decide_policy_signal_handler returns: %d", handled);
-	return handled;
 }
 
 void setup_browser(Browser *b)
