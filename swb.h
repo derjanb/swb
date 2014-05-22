@@ -26,6 +26,11 @@ void load_changed_signal_handler(WebKitWebView *wv,
 		WebKitLoadEvent load_event,
 		gpointer user_data);
 
+void update_title_signal_handler(GObject *gobj, 
+	GParamSpec *p, 
+	gpointer user_data);
+
+void set_tab_title(Browser *b, WebKitWebView *wv, const gchar *title);
 bool go_back(Browser *b);
 bool go_forward(Browser *b);
 bool close_tab(Browser *b);

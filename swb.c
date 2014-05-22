@@ -38,6 +38,7 @@ WebKitWebView *new_web_view(Browser *b)
 	g_signal_connect(wv, "create", G_CALLBACK(create_signal_handler), b);
 	g_signal_connect(wv, "decide_policy", G_CALLBACK(decide_policy_signal_handler), b);
 	g_signal_connect(wv, "load_changed", G_CALLBACK(load_changed_signal_handler), b);
+	g_signal_connect(wv, "notify::title", G_CALLBACK(update_title_signal_handler), b);
 	return wv;
 }
 
@@ -78,10 +79,20 @@ char *read_url(char *buf, Browser *b)
 	return url;
 }
 
-void set_tab_title(Browser *b, const gchar *title)
+void update_title_signal_handler(GObject *gobj, GParamSpec *p, gpointer user_data)
+{
+	Browser *b = (Browser *)user_data;
+	WebKitWebView *wv = (WebKitWebView *)gobj;
+	if(webkit_web_view_get_title(wv)!=NULL)
+	{
+		set_tab_title(b, wv, webkit_web_view_get_title(wv));
+	}
+}
+
+void set_tab_title(Browser *b, WebKitWebView *wv, const gchar *title)
 {
 	gtk_notebook_set_tab_label_text(GTK_NOTEBOOK(b->notebook),
-			GTK_WIDGET(GET_CURRENT_WEB_VIEW(b)),
+			GTK_WIDGET(wv),
 			title);
 }
 
@@ -113,12 +124,11 @@ void load_changed_signal_handler(WebKitWebView *wv,
 	{
 		case WEBKIT_LOAD_STARTED:
 			{
-				set_tab_title(b, "Loading");
+				set_tab_title(b, wv, "Loading");
 				break;
 			}
 		case WEBKIT_LOAD_FINISHED:
 			{
-				set_tab_title(b, webkit_web_view_get_title(wv));
 				const char *url = webkit_web_view_get_uri(wv);
 				save_history(b, url);
 				break;
