@@ -12,7 +12,6 @@ char *read_url(char *buf, Browser *b)
 {
 	gchar *command = READ_URL_CMD(webkit_web_view_get_uri(GET_CURRENT_WEB_VIEW(b)));
 	FILE *url_command_stream = popen(command, "r");
-	fprintf(stderr, "%s\n", command);
 	g_free(command);
 
 	char *url = NULL;
