@@ -1,6 +1,6 @@
 #pragma once
 
-#define BUF_LEN 1000
+#define BUF_LEN 10000
 
 #define HOME_PAGE "http://duckduckgo.com"
 

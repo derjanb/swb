@@ -1,8 +1,6 @@
 #define _XOPEN_SOURCE
-
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
 #include <gtk/gtk.h>
 #include <sqlite3.h>
 #include <webkit2/webkit2.h>
@@ -10,6 +8,7 @@
 #include "config.h"
 #include "helpers.h"
 #include "handlers.h"
+#include "navigation.h"
 
 int main (int argc, char *argv[])
 {
@@ -22,104 +21,6 @@ int main (int argc, char *argv[])
 	gtk_main ();
 
 	return 0;
-}
-
-WebKitWebView *new_web_view(Browser *b)
-{
-	WebKitWebView *wv = WEBKIT_WEB_VIEW(webkit_web_view_new_with_context(b->web_context));
-	webkit_settings_set_user_agent(webkit_web_view_get_settings(wv),
-			USER_AGENT);
-	g_signal_connect(wv, "create", G_CALLBACK(create_signal_handler), b);
-	g_signal_connect(wv, "decide_policy", G_CALLBACK(decide_policy_signal_handler), b);
-	g_signal_connect(wv, "load_changed", G_CALLBACK(load_changed_signal_handler), b);
-	g_signal_connect(wv, "notify::title", G_CALLBACK(update_title_signal_handler), b);
-	return wv;
-}
-
-WebKitWebView *new_tab(Browser *b)
-{
-	WebKitWebView *wv = new_web_view(b);
-	gtk_widget_show(GTK_WIDGET(wv));
-	gtk_notebook_set_current_page(GTK_NOTEBOOK(b->notebook),
-			gtk_notebook_append_page(GTK_NOTEBOOK(b->notebook), GTK_WIDGET(wv), NULL));
-	return wv;
-}
-
-
-
-bool open_page(Browser *b)
-{
-	char buf[BUF_LEN];
-	char *url = read_url(buf, b);
-	if(url != NULL)
-	{
-		webkit_web_view_load_uri(GET_CURRENT_WEB_VIEW(b),
-				url);
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
-bool tabopen_page(Browser *b)
-{
-	char buf[BUF_LEN];
-	char *url = read_url(buf, b);
-	if(url != NULL)
-	{
-		webkit_web_view_load_uri(new_tab(b),
-				url);
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
-bool close_tab(Browser *b)
-{
-	if(gtk_notebook_get_n_pages(GTK_NOTEBOOK(b->notebook)) > 1)
-	{
-		int cur_page = gtk_notebook_get_current_page(GTK_NOTEBOOK(b->notebook));
-		WebKitWebView *wv = GET_CURRENT_WEB_VIEW(b);
-		gtk_notebook_prev_page(GTK_NOTEBOOK(b->notebook));
-		gtk_notebook_remove_page(GTK_NOTEBOOK(b->notebook), cur_page);
-		gtk_widget_destroy(GTK_WIDGET(wv));
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
-bool go_forward(Browser *b)
-{
-	if(webkit_web_view_can_go_forward(GET_CURRENT_WEB_VIEW(b)))
-	{
-		webkit_web_view_go_forward(GET_CURRENT_WEB_VIEW(b));
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
-bool go_back(Browser *b)
-{
-	if(webkit_web_view_can_go_back(GET_CURRENT_WEB_VIEW(b)))
-	{
-		webkit_web_view_go_back(GET_CURRENT_WEB_VIEW(b));
-		return true;
-	}
-	else
-	{
-		return false;
-	}
 }
 
 void setup_browser(Browser *b)
@@ -145,8 +46,9 @@ void setup_browser(Browser *b)
 	b->notebook = gtk_notebook_new();
 
 	//create webview, put it in notebook and load home page
-	gtk_notebook_append_page(GTK_NOTEBOOK(b->notebook), GTK_WIDGET(new_web_view(b)), NULL);
-	webkit_web_view_load_uri(GET_CURRENT_WEB_VIEW(b), HOME_PAGE);
+	WebKitWebView *wv = new_web_view(b);
+	gtk_notebook_append_page(GTK_NOTEBOOK(b->notebook), GTK_WIDGET(wv), NULL);
+	webkit_web_view_load_uri(wv, HOME_PAGE);
 
 	//set custom stylesheet for webviewgroup
 	FILE *style_css_fd = fopen(STYLESHEET_FILE, "r");
@@ -160,7 +62,7 @@ void setup_browser(Browser *b)
 		css[css_size] = '\0';
 		fclose(style_css_fd);
 		webkit_web_view_group_add_user_style_sheet(
-		webkit_web_view_get_group(WEBKIT_WEB_VIEW(GET_CURRENT_WEB_VIEW(b))),
+		webkit_web_view_get_group(wv),
 		css,
 		NULL,
 		NULL,
@@ -190,7 +92,7 @@ void setup_browser(Browser *b)
 	//show the window, the notebook and the current webview
 	gtk_container_add(GTK_CONTAINER(b->window), GTK_WIDGET(b->notebook)); 
 	gtk_widget_show(b->notebook);
-	gtk_widget_show(GTK_WIDGET(GET_CURRENT_WEB_VIEW(b)));
+	gtk_widget_show(GTK_WIDGET(wv));
 	gtk_widget_show (b->window);
 }
 

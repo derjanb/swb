@@ -5,6 +5,7 @@
 char *read_url(char *, Browser *);
 void set_tab_title(Browser *, WebKitWebView *, const gchar *);
 bool save_history(Browser *, const gchar *);
+WebKitWebView *new_web_view(Browser *);
 
 #define GET_CURRENT_WEB_VIEW(browser) \
 	WEBKIT_WEB_VIEW(\

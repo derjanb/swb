@@ -1,6 +1,4 @@
 #pragma once
-#define BUF_LEN 1000
-
 typedef struct 
 {
 	GtkWidget *window;

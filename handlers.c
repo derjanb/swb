@@ -4,6 +4,7 @@
 #include "helpers.h"
 #include "handlers.h"
 #include "config.h"
+#include "navigation.h"
 
 gboolean key_press_event_handler(GtkWidget *window,
 		GdkEvent *event,
