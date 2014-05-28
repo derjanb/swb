@@ -5,34 +5,34 @@
 #include <stdio.h>
 #include <sqlite3.h>
 #include "helpers.h"
+#include "handlers.h"
 #include "swb.h"
 #include "config.h"
 
-char *read_url(char *buf, Browser *b)
+void load_uri(WebKitWebView *wv, char *uri)
 {
-	gchar *command = READ_URL_CMD(webkit_web_view_get_uri(GET_CURRENT_WEB_VIEW(b)));
-	FILE *url_command_stream = popen(command, "r");
-	g_free(command);
+	char *uri_tmp = strstr(uri, "://")!=NULL ? g_strdup(uri) : g_strdup_printf("http://%s", uri);
+	webkit_web_view_load_uri(wv, uri_tmp);
+	g_free(uri_tmp);
+}
 
-	char *url = NULL;
-
-	if(url_command_stream != NULL)
+char *read_user_input(char *cmd)
+{
+	char *cmd_stdout;
+	if(g_spawn_command_line_sync(cmd, &cmd_stdout, NULL, NULL, NULL)==FALSE)
 	{
-		strcpy(buf,"http://");
-		if(fgets(buf+strlen("http://"), BUF_LEN-1-strlen("http://"), url_command_stream) !=NULL)
-		{
-			if(strncmp("http", buf+strlen("http://"), strlen("http")) == 0)
-			{
-				url = buf+strlen("http://");
-			}
-			else
-			{
-				url = buf;
-			}
-		}
+		g_free(cmd_stdout);
+		return NULL;
 	}
-	pclose(url_command_stream);
-	return url;
+	else
+	{
+		//remove trailing newline
+		if(cmd_stdout[strlen(cmd_stdout)-1]=='\n')
+		{
+			cmd_stdout[strlen(cmd_stdout)-1]='\0';
+		}
+		return cmd_stdout;
+	}
 }
 
 void set_tab_title(Browser *b, WebKitWebView *wv, const gchar *title)
@@ -46,8 +46,8 @@ bool save_history(Browser *b, const gchar *url)
 {
 	sqlite3 *db;
 	bool sucess = sqlite3_open(HISTORY_FILE, &db) == 0;
-	if(sucess)
-	{
+if(sucess)
+{
 		char sql[BUF_LEN];
 		sprintf(sql, "CREATE TABLE IF NOT EXISTS history(url varchar primary key, hits int);"\
 				"INSERT OR IGNORE INTO history VALUES(\"%s\", 0);"\

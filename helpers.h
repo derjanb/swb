@@ -2,7 +2,7 @@
 #include <webkit2/webkit2.h>
 #include "swb.h"
 
-char *read_url(char *, Browser *);
+char *read_user_input(char *);
 void set_tab_title(Browser *, WebKitWebView *, const gchar *);
 bool save_history(Browser *, const gchar *);
 WebKitWebView *new_web_view(Browser *);

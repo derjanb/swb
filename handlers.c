@@ -53,6 +53,18 @@ gboolean key_press_event_handler(GtkWidget *window,
 					go_back(b);
 					break;
 				}
+			case FIND_KEY:
+				{
+					handled = TRUE;
+					find(b);
+					break;
+				}
+			case FIND_NEXT_KEY:
+				{
+					handled = TRUE;
+					find_next(b);
+					break;
+				}
 			case INPUT_MODE_KEY:
 				{
 					handled = TRUE;

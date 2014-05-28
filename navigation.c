@@ -13,16 +13,31 @@ WebKitWebView *new_tab(Browser *b)
 	return wv;
 }
 
+void find(Browser *b)
+{
+	char *find_string = read_user_input(READ_ANY_CMD("Find :"));
+	if(find_string!=NULL)
+	{
+		WebKitFindController *fc = webkit_web_view_get_find_controller(GET_CURRENT_WEB_VIEW(b));
+		webkit_find_controller_search(fc, find_string, WEBKIT_FIND_OPTIONS_CASE_INSENSITIVE||WEBKIT_FIND_OPTIONS_WRAP_AROUND, 1<<31);
+	}
+	g_free(find_string);
+}
 
+void find_next(Browser *b)
+{
+	WebKitFindController *fc = webkit_web_view_get_find_controller(GET_CURRENT_WEB_VIEW(b));
+	webkit_find_controller_search_next(fc);
+}
 
 bool open_page(Browser *b)
 {
-	char buf[BUF_LEN];
-	char *url = read_url(buf, b);
+	char *url = read_user_input(READ_URL_CMD(webkit_web_view_get_uri(GET_CURRENT_WEB_VIEW(b)), "Open: "));
 	if(url != NULL)
 	{
 		webkit_web_view_load_uri(GET_CURRENT_WEB_VIEW(b),
 				url);
+		g_free(url);
 		return true;
 	}
 	else
@@ -33,12 +48,12 @@ bool open_page(Browser *b)
 
 bool tabopen_page(Browser *b)
 {
-	char buf[BUF_LEN];
-	char *url = read_url(buf, b);
+	char *url = read_user_input(READ_URL_CMD(webkit_web_view_get_uri(GET_CURRENT_WEB_VIEW(b)), "Tabopen: "));
 	if(url != NULL)
 	{
 		webkit_web_view_load_uri(new_tab(b),
 				url);
+		g_free(url);
 		return true;
 	}
 	else
