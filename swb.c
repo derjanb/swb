@@ -51,26 +51,19 @@ void setup_browser(Browser *b)
 	gtk_notebook_append_page(GTK_NOTEBOOK(b->notebook), GTK_WIDGET(wv), NULL);
 	webkit_web_view_load_uri(wv, HOME_PAGE);
 
-	//set custom stylesheet for webviewgroup
-	FILE *style_css_fd = fopen(STYLESHEET_FILE, "r");
-	if(style_css_fd!=NULL)
+	//set custom stylesheet for webviewgroupi
+	char *css;
+	if(g_file_get_contents(STYLESHEET_FILE, &css, NULL, NULL))
 	{
-		fseek(style_css_fd, 0L, SEEK_END);
-		int css_size = ftell(style_css_fd);
-		char *css = malloc(css_size+1);
-		fseek(style_css_fd, 0L, SEEK_SET);
-		fread(css, sizeof(char), css_size, style_css_fd);
-		css[css_size] = '\0';
-		fclose(style_css_fd);
 		webkit_web_view_group_add_user_style_sheet(
-		webkit_web_view_get_group(wv),
-		css,
-		NULL,
-		NULL,
-		NULL,
-		WEBKIT_INJECTED_CONTENT_FRAMES_ALL);
-		free(css);
+				webkit_web_view_get_group(wv),
+				css,
+				NULL,
+				NULL,
+				NULL,
+				WEBKIT_INJECTED_CONTENT_FRAMES_ALL);
 	}
+	g_free(css);
 
 	GtkCssProvider *css_provider = gtk_css_provider_new();
 	gtk_style_context_add_provider_for_screen(
