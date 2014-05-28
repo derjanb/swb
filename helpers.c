@@ -11,15 +11,18 @@
 
 void load_uri(WebKitWebView *wv, char *uri)
 {
-	char *uri_tmp = strstr(uri, "://")!=NULL ? g_strdup(uri) : g_strdup_printf("http://%s", uri);
-	webkit_web_view_load_uri(wv, uri_tmp);
-	g_free(uri_tmp);
+	if(uri!=NULL)
+	{
+		char *uri_tmp = strstr(uri, "://")!=NULL ? g_strdup(uri) : g_strdup_printf("http://%s", uri);
+		webkit_web_view_load_uri(wv, uri_tmp);
+		g_free(uri_tmp);
+	}
 }
 
 char *read_user_input(char *cmd)
 {
 	char *cmd_stdout;
-	if(g_spawn_command_line_sync(cmd, &cmd_stdout, NULL, NULL, NULL)==FALSE)
+	if(g_spawn_command_line_sync(cmd, &cmd_stdout, NULL, NULL, NULL)==FALSE || strlen(cmd_stdout)==0)
 	{
 		g_free(cmd_stdout);
 		return NULL;
