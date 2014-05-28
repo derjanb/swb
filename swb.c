@@ -1,5 +1,6 @@
 #define _XOPEN_SOURCE
 #include <stdio.h>
+#include <sys/stat.h>
 #include <string.h>
 #include <stdlib.h>
 #include <gtk/gtk.h>
@@ -26,6 +27,9 @@ int main (int argc, char *argv[])
 
 void setup_browser(Browser *b)
 {
+	//create config dir if it doesn't exist already
+	mkdir(CONFIG_PATH, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+
 	//give default settings to web_context
 	b->web_context = webkit_web_context_get_default();
 	//if we're able to, we'd like to use separate processes for each webview
