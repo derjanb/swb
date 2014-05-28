@@ -32,12 +32,11 @@ void find_next(Browser *b)
 
 bool open_page(Browser *b)
 {
-	char *url = read_user_input(READ_URL_CMD(webkit_web_view_get_uri(GET_CURRENT_WEB_VIEW(b)), "Open: "));
-	if(url != NULL)
+	char *uri = read_user_input(READ_URL_CMD(webkit_web_view_get_uri(GET_CURRENT_WEB_VIEW(b)), "Open: "));
+	if(uri != NULL)
 	{
-		webkit_web_view_load_uri(GET_CURRENT_WEB_VIEW(b),
-				url);
-		g_free(url);
+		load_uri(GET_CURRENT_WEB_VIEW(b), uri);
+		g_free(uri);
 		return true;
 	}
 	else
@@ -48,12 +47,11 @@ bool open_page(Browser *b)
 
 bool tabopen_page(Browser *b)
 {
-	char *url = read_user_input(READ_URL_CMD(webkit_web_view_get_uri(GET_CURRENT_WEB_VIEW(b)), "Tabopen: "));
-	if(url != NULL)
+	char *uri = read_user_input(READ_URL_CMD(webkit_web_view_get_uri(GET_CURRENT_WEB_VIEW(b)), "Tabopen: "));
+	if(uri != NULL)
 	{
-		webkit_web_view_load_uri(new_tab(b),
-				url);
-		g_free(url);
+		load_uri(new_tab(b), uri);
+		g_free(uri);
 		return true;
 	}
 	else

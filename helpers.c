@@ -42,7 +42,7 @@ void set_tab_title(Browser *b, WebKitWebView *wv, const gchar *title)
 			title);
 }
 
-bool save_history(Browser *b, const gchar *url)
+bool save_history(Browser *b, const gchar *uri)
 {
 	sqlite3 *db;
 	bool sucess = sqlite3_open(HISTORY_FILE, &db) == 0;
@@ -51,7 +51,7 @@ if(sucess)
 		char sql[BUF_LEN];
 		sprintf(sql, "CREATE TABLE IF NOT EXISTS history(url varchar primary key, hits int);"\
 				"INSERT OR IGNORE INTO history VALUES(\"%s\", 0);"\
-				"UPDATE history SET hits = hits + 1 WHERE \"%s\"=url", url, url);
+				"UPDATE history SET hits = hits + 1 WHERE \"%s\"=url", uri, uri);
 		sucess &= SQLITE_OK == sqlite3_exec(db, sql, NULL, NULL, NULL);
 	}
 	sqlite3_close(db);

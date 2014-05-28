@@ -147,8 +147,8 @@ void load_changed_signal_handler(WebKitWebView *wv,
 			}
 		case WEBKIT_LOAD_FINISHED:
 			{
-				const char *url = webkit_web_view_get_uri(wv);
-				save_history(b, url);
+				const char *uri = webkit_web_view_get_uri(wv);
+				save_history(b, uri);
 				break;
 			}
 		default:
