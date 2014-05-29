@@ -20,14 +20,14 @@ gboolean key_press_event_handler(GtkWidget *window,
 
 	gdk_event_get_keyval(event, &keyval);
 
-	if(b->mode == COMMAND || keyval == COMMAND_MODE_KEY)
+	if(b->mode == COMMAND || keyval == GDK_KEY_Escape)
 	{
 		for(int i = 0; i < sizeof(keys)/sizeof(Key); ++i)
 		{
 			if(keyval == keys[i].keyval)
 			{
 				handled = TRUE;
-				keys[i].func(b);
+				keys[i].func(b, keys[i].arg);
 			}
 		}
 	}
@@ -101,6 +101,10 @@ void load_changed_signal_handler(WebKitWebView *wv,
 			{
 				const char *uri = webkit_web_view_get_uri(wv);
 				save_history(b, uri);
+				break;
+			}
+		case WEBKIT_LOAD_COMMITTED:
+			{
 				break;
 			}
 		default:

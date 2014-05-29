@@ -9,12 +9,22 @@
 #include "swb.h"
 #include "config.h"
 
-void set_input_mode(Browser *b)
+void exec_js(Browser *b, char *js)
+{
+	char *script;
+	if(g_file_get_contents(js, &script, NULL, NULL))
+	{
+		webkit_web_view_run_javascript(GET_CURRENT_WEB_VIEW(b), script, NULL, NULL, NULL);
+	}
+	g_free(script);
+}
+	
+void set_input_mode(Browser *b, char *NOT_USED)
 {
 	b->mode = INPUT;
 }
 
-void set_command_mode(Browser *b)
+void set_command_mode(Browser *b, char *NOT_USED)
 {
 	b->mode = COMMAND;
 }

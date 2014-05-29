@@ -13,24 +13,25 @@ WebKitWebView *new_tab(Browser *b)
 	return wv;
 }
 
-void find(Browser *b)
+void find(Browser *b, char *NOT_USED)
 {
 	char *find_string = read_user_input(READ_ANY_CMD("Find :"));
 	if(find_string!=NULL)
 	{
 		WebKitFindController *fc = webkit_web_view_get_find_controller(GET_CURRENT_WEB_VIEW(b));
-		webkit_find_controller_search(fc, find_string, WEBKIT_FIND_OPTIONS_CASE_INSENSITIVE||WEBKIT_FIND_OPTIONS_WRAP_AROUND, 1<<31);
+		webkit_find_controller_search(fc, find_string,
+			WEBKIT_FIND_OPTIONS_CASE_INSENSITIVE||WEBKIT_FIND_OPTIONS_WRAP_AROUND, 1<<31);
 	}
 	g_free(find_string);
 }
 
-void find_next(Browser *b)
+void find_next(Browser *b, char *NOT_USED)
 {
 	WebKitFindController *fc = webkit_web_view_get_find_controller(GET_CURRENT_WEB_VIEW(b));
 	webkit_find_controller_search_next(fc);
 }
 
-void open_page(Browser *b)
+void open_page(Browser *b, char *NOT_USED)
 {
 	char *uri = read_user_input(READ_URL_CMD(webkit_web_view_get_uri(GET_CURRENT_WEB_VIEW(b)), "Open: "));
 	if(uri != NULL)
@@ -40,7 +41,7 @@ void open_page(Browser *b)
 	}
 }
 
-void tabopen_page(Browser *b)
+void tabopen_page(Browser *b, char *NOT_USED)
 {
 	char *uri = read_user_input(READ_URL_CMD(webkit_web_view_get_uri(GET_CURRENT_WEB_VIEW(b)), "Tabopen: "));
 	if(uri != NULL)
@@ -50,7 +51,7 @@ void tabopen_page(Browser *b)
 	}
 }
 
-void close_tab(Browser *b)
+void close_tab(Browser *b, char *NOT_USED)
 {
 	if(gtk_notebook_get_n_pages(GTK_NOTEBOOK(b->notebook)) > 1)
 	{
@@ -62,7 +63,7 @@ void close_tab(Browser *b)
 	}
 }
 
-void go_forward(Browser *b)
+void go_forward(Browser *b, char *NOT_USED)
 {
 	if(webkit_web_view_can_go_forward(GET_CURRENT_WEB_VIEW(b)))
 	{
@@ -70,7 +71,7 @@ void go_forward(Browser *b)
 	}
 }
 
-void go_back(Browser *b)
+void go_back(Browser *b, char *NOT_USED)
 {
 	if(webkit_web_view_can_go_back(GET_CURRENT_WEB_VIEW(b)))
 	{
