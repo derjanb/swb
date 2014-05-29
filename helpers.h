@@ -2,6 +2,8 @@
 #include <webkit2/webkit2.h>
 #include "swb.h"
 
+void set_command_mode(Browser *);
+void set_input_mode(Browser *);
 char *read_user_input(char *);
 void set_tab_title(Browser *, WebKitWebView *, const gchar *);
 bool save_history(Browser *, const gchar *);

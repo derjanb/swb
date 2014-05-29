@@ -13,7 +13,7 @@ swb.o: swb.c swb.h config.h
 helpers.o: helpers.c helpers.h config.h
 	$(CC) $(CFLAGS) -c helpers.c -o helpers.o 
 
-handlers.o: handlers.c handlers.h config.h 
+handlers.o: handlers.c handlers.h config.h keys.h 
 	$(CC) $(CFLAGS) -c handlers.c -o handlers.o 
 
 navigation.o: navigation.c navigation.h config.h

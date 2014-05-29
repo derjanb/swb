@@ -5,6 +5,7 @@
 #include "handlers.h"
 #include "config.h"
 #include "navigation.h"
+#include "keys.h"
 
 gboolean key_press_event_handler(GtkWidget *window,
 		GdkEvent *event,
@@ -21,62 +22,13 @@ gboolean key_press_event_handler(GtkWidget *window,
 
 	if(b->mode == COMMAND || keyval == COMMAND_MODE_KEY)
 	{
-		switch(keyval)
+		for(int i = 0; i < sizeof(keys)/sizeof(Key); ++i)
 		{
-			case OPEN_KEY:
-				{
-					handled = TRUE;
-					open_page(b);
-					break;
-				}
-			case TABOPEN_KEY:
-				{
-					handled = TRUE;
-					tabopen_page(b);
-					break;
-				}
-			case CLOSE_TAB_KEY:
-				{
-					handled = TRUE;
-					close_tab(b);
-					break;
-				}
-			case FORWARD_KEY:
-				{
-					handled = TRUE;
-					go_forward(b);
-					break;
-				}
-			case BACKWARD_KEY:
-				{
-					handled = TRUE;
-					go_back(b);
-					break;
-				}
-			case FIND_KEY:
-				{
-					handled = TRUE;
-					find(b);
-					break;
-				}
-			case FIND_NEXT_KEY:
-				{
-					handled = TRUE;
-					find_next(b);
-					break;
-				}
-			case INPUT_MODE_KEY:
-				{
-					handled = TRUE;
-					b->mode = INPUT;
-					break;
-				}
-			case COMMAND_MODE_KEY:
-				{
-					handled = TRUE;
-					b->mode = COMMAND;
-					break;
-				}
+			if(keyval == keys[i].keyval)
+			{
+				handled = TRUE;
+				keys[i].func(b);
+			}
 		}
 	}
 	DEBUGARG("key_press_event_signal_handler returns %d", handled);

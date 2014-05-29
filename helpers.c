@@ -9,6 +9,16 @@
 #include "swb.h"
 #include "config.h"
 
+void set_input_mode(Browser *b)
+{
+	b->mode = INPUT;
+}
+
+void set_command_mode(Browser *b)
+{
+	b->mode = COMMAND;
+}
+
 void load_uri(WebKitWebView *wv, char *uri)
 {
 	if(uri!=NULL)

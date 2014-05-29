@@ -18,13 +18,3 @@
 #define HISTORY_FILE CONFIG_PATH"history"
 #define READ_URL_CMD(CUR_URL, PROMPT) g_strconcat("sh -c \"echo \\\"", CUR_URL, "\\\" $(sqlite3 ", HISTORY_FILE, " \\\"select url from history order by hits desc;\\\") | tr -s ' ' '\n' | dmenu -p \\\"", PROMPT,"\\\"\"",  (char*)0)
 #define READ_ANY_CMD(PROMPT) g_strconcat("sh -c \"dmenu -p \\\"", PROMPT, "\\\"", " <&-\"", (char *)0)
-
-#define OPEN_KEY GDK_KEY_o
-#define TABOPEN_KEY GDK_KEY_t
-#define CLOSE_TAB_KEY GDK_KEY_q
-#define FORWARD_KEY GDK_KEY_f
-#define BACKWARD_KEY GDK_KEY_d
-#define FIND_KEY GDK_KEY_slash
-#define FIND_NEXT_KEY GDK_KEY_n
-#define INPUT_MODE_KEY GDK_KEY_i
-#define COMMAND_MODE_KEY GDK_KEY_Escape

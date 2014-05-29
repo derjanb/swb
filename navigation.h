@@ -5,8 +5,8 @@
 WebKitWebView *new_tab(Browser *);
 void find(Browser *b);
 void find_next(Browser *b);
-bool open_page(Browser *);
-bool tabopen_page(Browser *);
-bool close_tab(Browser *);
-bool go_forward(Browser *);
-bool go_back(Browser *);
+void open_page(Browser *);
+void tabopen_page(Browser *);
+void close_tab(Browser *);
+void go_forward(Browser *);
+void go_back(Browser *);
