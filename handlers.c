@@ -6,6 +6,7 @@
 #include "config.h"
 #include "navigation.h"
 #include "keys.h"
+#include "events.h"
 
 gboolean key_press_event_handler(GtkWidget *window,
 		GdkEvent *event,
@@ -90,6 +91,11 @@ void load_changed_signal_handler(WebKitWebView *wv,
 
 	Browser *b = (Browser *)user_data;
 
+	for(int i=0; i < sizeof(events)/sizeof(Event); ++i)
+	{
+		events[i].func(b, events[i].arg);
+	}
+
 	switch (load_event)
 	{
 		case WEBKIT_LOAD_STARTED:
@@ -101,10 +107,6 @@ void load_changed_signal_handler(WebKitWebView *wv,
 			{
 				const char *uri = webkit_web_view_get_uri(wv);
 				save_history(b, uri);
-				break;
-			}
-		case WEBKIT_LOAD_COMMITTED:
-			{
 				break;
 			}
 		default:
