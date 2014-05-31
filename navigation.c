@@ -33,21 +33,29 @@ void find_next(Browser *b, char *NOT_USED)
 
 void open_page(Browser *b, char *NOT_USED)
 {
-	char *uri = read_user_input(READ_URL_CMD(webkit_web_view_get_uri(GET_CURRENT_WEB_VIEW(b)), "Open: "));
-	if(uri != NULL)
+	const char *cur_uri = webkit_web_view_get_uri(GET_CURRENT_WEB_VIEW(b));
+	if(cur_uri!=NULL)
 	{
-		load_uri(GET_CURRENT_WEB_VIEW(b), uri);
-		g_free(uri);
+		char *uri = read_user_input(READ_URL_CMD(cur_uri, "Open:"));
+		if(uri != NULL)
+		{
+			load_uri(GET_CURRENT_WEB_VIEW(b), uri);
+			g_free(uri);
+		}
 	}
 }
 
 void tabopen_page(Browser *b, char *NOT_USED)
 {
-	char *uri = read_user_input(READ_URL_CMD(webkit_web_view_get_uri(GET_CURRENT_WEB_VIEW(b)), "Tabopen: "));
-	if(uri != NULL)
+	const char *cur_uri = webkit_web_view_get_uri(GET_CURRENT_WEB_VIEW(b));
+	if(cur_uri!=NULL)
 	{
-		load_uri(new_tab(b), uri);
-		g_free(uri);
+		char *uri = read_user_input(READ_URL_CMD(cur_uri, "Open:"));
+		if(uri != NULL)
+		{
+			load_uri(new_tab(b), uri);
+			g_free(uri);
+		}
 	}
 }
 
