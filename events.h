@@ -11,5 +11,6 @@ typedef struct {
 } Event;
 
 Event events[] = {
-	{WEBKIT_LOAD_COMMITTED, exec_js, CONFIG_PATH"scripts/noscript.js"}
-};
+	/* example - Exec follow_hints.js when page finished loading */
+	{WEBKIT_LOAD_FINISHED, exec_js, CONFIG_PATH"scripts/follow_hints.js"}
+	};
