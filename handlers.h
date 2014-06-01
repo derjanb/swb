@@ -1,3 +1,4 @@
+void load_uri(WebKitWebView *, char *);
 gboolean decide_policy_signal_handler(WebKitWebView *web_view,
 		WebKitPolicyDecision *decision,
 		WebKitPolicyDecisionType type,
