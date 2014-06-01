@@ -4,6 +4,20 @@
 #include "config.h"
 #include "helpers.h"
 
+void follow_hints(Browser *b, char *NOT_USED)
+{
+	webkit_web_view_run_javascript(GET_CURRENT_WEB_VIEW(b), "hintMode();", NULL, NULL, NULL);
+
+	char *hint_num = read_user_input(READ_ANY_CMD("Follow:"));
+	char *js = g_strdup_printf("judgeHintNum(%s);", hint_num);
+	g_free(hint_num);
+	webkit_web_view_run_javascript(GET_CURRENT_WEB_VIEW(b), js, NULL, NULL, NULL);
+	g_free(js);
+	webkit_web_view_run_javascript(GET_CURRENT_WEB_VIEW(b), "removeHints();", NULL, NULL, NULL);
+}
+
+
+
 WebKitWebView *new_tab(Browser *b)
 {
 	WebKitWebView *wv = new_web_view(b);

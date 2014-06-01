@@ -10,3 +10,4 @@ void tabopen_page(Browser *, char *NOT_USED);
 void close_tab(Browser *, char *NOT_USED);
 void go_forward(Browser *, char *NOT_USED);
 void go_back(Browser *, char *NOT_USED);
+void follow_hints(Browser *, char *NOT_USED);
