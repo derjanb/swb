@@ -21,4 +21,8 @@ Key keys[] = {
 	{GDK_KEY_Escape, set_command_mode, NULL},
 	{GDK_KEY_i, set_input_mode, NULL},
 	{GDK_KEY_e, enable_follow_hints, NULL},
+	{GDK_KEY_k, exec_js, "window.scrollBy(0,-100);"},
+	{GDK_KEY_j, exec_js, "window.scrollBy(0,100);"},
+	{GDK_KEY_h, exec_js, "window.scrollBy(-100,0);"},
+	{GDK_KEY_l, exec_js, "window.scrollBy(100,0);"}
 };

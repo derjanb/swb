@@ -4,6 +4,7 @@
 
 void spawn_cmd(Browser *, char *);
 void load_uri(WebKitWebView *, char *);
+void exec_js_file(Browser *, char *);
 void exec_js(Browser *, char *);
 void exec_sh(Browser *, char *);
 void set_command_mode(Browser *, char *);

@@ -36,6 +36,12 @@ void spawn_cmd(Browser *b, char *type)
 
 void exec_js(Browser *b, char *js)
 {
+	webkit_web_view_run_javascript(GET_CURRENT_WEB_VIEW(b), js, NULL, NULL, NULL);
+}
+
+
+void exec_js_file(Browser *b, char *js)
+{
 	char *script;
 	if(g_file_get_contents(js, &script, NULL, NULL))
 	{

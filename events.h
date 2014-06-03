@@ -12,5 +12,5 @@ typedef struct {
 
 Event events[] = {
 	/* example - Exec follow_hints.js when page finished loading */
-	{WEBKIT_LOAD_FINISHED, exec_js, CONFIG_PATH"scripts/follow_hints.js"}
+	{WEBKIT_LOAD_FINISHED, exec_js_file, CONFIG_PATH"scripts/follow_hints.js"}
 };
