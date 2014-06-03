@@ -17,3 +17,6 @@ One can also bind keys and events to execute scripts. See events.h and keys.h fo
 
 ## Ad-blocking?
 I use an adblocking stylesheet and privoxy.
+
+## Follow hints?!
+Default configuration works with the script from suckless surf. You could also code your own with javascript (and shell script if you'd like).
