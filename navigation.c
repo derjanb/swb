@@ -4,20 +4,23 @@
 #include "config.h"
 #include "helpers.h"
 
-void follow_hints(Browser *b, char *NOT_USED)
+void enable_follow_hints(Browser *b, char *NOT_USED)
 {
 	webkit_web_view_run_javascript(GET_CURRENT_WEB_VIEW(b), "hintMode();", NULL, NULL, NULL);
+	char *type_str = g_strdup_printf("%d", FOLLOW_HINT);
+	char *cmd = READ_ANY_CMD("Follow:", type_str);
+	exec_sh(b, cmd);
+	g_free(cmd);
+	g_free(type_str);
+}
 
-	char *hint_num = read_user_input(READ_ANY_CMD("Follow:"));
-	char *js = g_strdup_printf("judgeHintNum(%s);", hint_num);
-	g_free(hint_num);
+void follow_hint(Browser *b, char *hint)
+{
+	char *js = g_strdup_printf("judgeHintNum(%s);", hint);
 	webkit_web_view_run_javascript(GET_CURRENT_WEB_VIEW(b), js, NULL, NULL, NULL);
 	g_free(js);
 	webkit_web_view_run_javascript(GET_CURRENT_WEB_VIEW(b), "removeHints();", NULL, NULL, NULL);
 }
-
-
-
 WebKitWebView *new_tab(Browser *b)
 {
 	WebKitWebView *wv = new_web_view(b);
@@ -27,16 +30,14 @@ WebKitWebView *new_tab(Browser *b)
 	return wv;
 }
 
-void find(Browser *b, char *NOT_USED)
+void find(Browser *b, char *find_string)
 {
-	char *find_string = read_user_input(READ_ANY_CMD("Find :"));
 	if(find_string!=NULL)
 	{
 		WebKitFindController *fc = webkit_web_view_get_find_controller(GET_CURRENT_WEB_VIEW(b));
 		webkit_find_controller_search(fc, find_string,
-			WEBKIT_FIND_OPTIONS_CASE_INSENSITIVE||WEBKIT_FIND_OPTIONS_WRAP_AROUND, 1<<31);
+			WEBKIT_FIND_OPTIONS_CASE_INSENSITIVE, 1<<31);
 	}
-	g_free(find_string);
 }
 
 void find_next(Browser *b, char *NOT_USED)
@@ -45,31 +46,20 @@ void find_next(Browser *b, char *NOT_USED)
 	webkit_find_controller_search_next(fc);
 }
 
-void open_page(Browser *b, char *NOT_USED)
+
+void open_page(Browser *b, char *uri)
 {
-	const char *cur_uri = webkit_web_view_get_uri(GET_CURRENT_WEB_VIEW(b));
-	if(cur_uri!=NULL)
+	if(uri != NULL)
 	{
-		char *uri = read_user_input(READ_URL_CMD(cur_uri, "Open:"));
-		if(uri != NULL)
-		{
-			load_uri(GET_CURRENT_WEB_VIEW(b), uri);
-			g_free(uri);
-		}
+		load_uri(GET_CURRENT_WEB_VIEW(b), uri);
 	}
 }
 
-void tabopen_page(Browser *b, char *NOT_USED)
+void tabopen_page(Browser *b, char *uri)
 {
-	const char *cur_uri = webkit_web_view_get_uri(GET_CURRENT_WEB_VIEW(b));
-	if(cur_uri!=NULL)
+	if(uri != NULL)
 	{
-		char *uri = read_user_input(READ_URL_CMD(cur_uri, "Open:"));
-		if(uri != NULL)
-		{
-			load_uri(new_tab(b), uri);
-			g_free(uri);
-		}
+		load_uri(new_tab(b), uri);
 	}
 }
 

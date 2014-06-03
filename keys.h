@@ -1,5 +1,6 @@
 #pragma once
 #include "handlers.h"
+#include "config.h"
 #include "navigation.h"
 #include "helpers.h"
 
@@ -10,14 +11,14 @@ typedef struct {
 } Key;
 
 Key keys[] = {
-	{GDK_KEY_o, open_page, NULL},
-	{GDK_KEY_t, tabopen_page, NULL},
+	{GDK_KEY_o, spawn_cmd, (char *) OPEN},
+	{GDK_KEY_t, spawn_cmd, (char *) TABOPEN},
 	{GDK_KEY_q, close_tab, NULL},
 	{GDK_KEY_f, go_forward, NULL},
 	{GDK_KEY_d, go_back, NULL},
-	{GDK_KEY_slash, find, NULL},
+	{GDK_KEY_slash, spawn_cmd, (char *) FIND},
 	{GDK_KEY_n, find_next, NULL},
 	{GDK_KEY_Escape, set_command_mode, NULL},
 	{GDK_KEY_i, set_input_mode, NULL},
-	{GDK_KEY_g, follow_hints, NULL},
+	{GDK_KEY_e, enable_follow_hints, NULL},
 };

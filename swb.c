@@ -1,8 +1,12 @@
-#define _XOPEN_SOURCE
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <sys/stat.h>
 #include <string.h>
 #include <stdlib.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include <gtk/gtk.h>
 #include <sqlite3.h>
 #include <webkit2/webkit2.h>
@@ -27,6 +31,14 @@ int main (int argc, char *argv[])
 
 void setup_browser(Browser *b)
 {
+	//create fifo for communicating with the browser
+	mknod(FIFO, S_IFIFO | 0644 , 0);
+	g_io_add_watch(g_io_channel_unix_new(open(FIFO, O_RDWR | O_NONBLOCK)),
+		G_IO_IN,
+		fifo_input_handler,
+		b);
+
+
 	//create config dir if it doesn't exist already
 	mkdir(CONFIG_PATH, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 

@@ -1,4 +1,3 @@
-void load_uri(WebKitWebView *, char *);
 gboolean decide_policy_signal_handler(WebKitWebView *web_view,
 		WebKitPolicyDecision *decision,
 		WebKitPolicyDecisionType type,
@@ -14,3 +13,4 @@ void load_changed_signal_handler(WebKitWebView *wv,
 void update_title_signal_handler(GObject *gobj, 
 		GParamSpec *p, 
 		gpointer user_data);
+gboolean fifo_input_handler(GIOChannel *, GIOCondition, gpointer);

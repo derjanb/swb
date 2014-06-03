@@ -1,5 +1,4 @@
 #pragma once
-
 #define BUF_LEN 10000
 
 #define HOME_PAGE "http://duckduckgo.com"
@@ -16,5 +15,9 @@
 
 
 #define HISTORY_FILE CONFIG_PATH"history"
-#define READ_URL_CMD(CUR_URL, PROMPT) g_strconcat("sh -c \"echo \\\"", CUR_URL, "\\\" $(sqlite3 ", HISTORY_FILE, " \\\"select url from history order by hits desc;\\\") | tr -s ' ' '\n' | dmenu -p \\\"", PROMPT,"\\\"\"",  (char*)0)
-#define READ_ANY_CMD(PROMPT) g_strconcat("sh -c \"dmenu -p \\\"", PROMPT, "\\\"", " <&-\"", (char *)0)
+#define READ_URL_CMD(PROMPT, TYPE) g_strconcat("sh -c \"echo ", TYPE, " $(echo \\\"", (webkit_web_view_get_uri(GET_CURRENT_WEB_VIEW(b))!=NULL?webkit_web_view_get_uri(GET_CURRENT_WEB_VIEW(b)):""), "\\\" $(sqlite3 ", HISTORY_FILE, " \\\"select url from history order by hits desc;\\\") | tr -s ' ' '\n' | dmenu -f -p \\\"", PROMPT,"\\\") >", FIFO, "\"",  (char*)0)
+#define READ_ANY_CMD(PROMPT, TYPE) g_strconcat("sh -c \"echo ", TYPE, " $(dmenu -f -p \\\"", PROMPT, "\\\"", " <&-) >", FIFO, "\"", (char *)0)
+
+#define FIFO "/tmp/swb_fifo"
+//defines functions that can be called from the fifo
+typedef enum {OPEN, TABOPEN, FIND, FOLLOW_HINT} fifo_funcs;

@@ -2,7 +2,10 @@
 #include <webkit2/webkit2.h>
 #include "swb.h"
 
+void spawn_cmd(Browser *, char *);
+void load_uri(WebKitWebView *, char *);
 void exec_js(Browser *, char *);
+void exec_sh(Browser *, char *);
 void set_command_mode(Browser *, char *);
 void set_input_mode(Browser *, char *);
 char *read_user_input(char *);

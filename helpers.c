@@ -1,4 +1,4 @@
-#define _XOPEN_SOURCE
+#define _GNU_SOURCE
 #include <webkit2/webkit2.h>
 #include <stdio.h>
 #include <string.h>
@@ -9,6 +9,31 @@
 #include "swb.h"
 #include "config.h"
 
+void spawn_cmd(Browser *b, char *type)
+{
+	fifo_funcs fifo_func = (fifo_funcs)type;
+	char *type_str = g_strdup_printf("%d", fifo_func), *cmd = NULL;
+	switch(fifo_func)
+	{
+		case OPEN:
+			cmd = READ_URL_CMD("Open:", type_str);
+			break;
+		case TABOPEN:
+			cmd = READ_URL_CMD("Tabopen:", type_str);
+			break;
+		case FIND:
+			cmd = READ_ANY_CMD("Find:", type_str);
+			break;
+		default:
+			break;
+	}
+	if(cmd != NULL)
+	{
+		exec_sh(b, cmd);
+		g_free(cmd);
+	}
+}
+
 void exec_js(Browser *b, char *js)
 {
 	char *script;
@@ -17,6 +42,11 @@ void exec_js(Browser *b, char *js)
 		webkit_web_view_run_javascript(GET_CURRENT_WEB_VIEW(b), script, NULL, NULL, NULL);
 	}
 	g_free(script);
+}
+
+void exec_sh(Browser *b, char *sh)
+{
+	g_spawn_command_line_async(sh, NULL);
 }
 	
 void set_input_mode(Browser *b, char *NOT_USED)
@@ -36,25 +66,6 @@ void load_uri(WebKitWebView *wv, char *uri)
 		char *uri_tmp = strstr(uri, "://")!=NULL ? g_strdup(uri) : g_strdup_printf("http://%s", uri);
 		webkit_web_view_load_uri(wv, uri_tmp);
 		g_free(uri_tmp);
-	}
-}
-
-char *read_user_input(char *cmd)
-{
-	char *cmd_stdout;
-	if(g_spawn_command_line_sync(cmd, &cmd_stdout, NULL, NULL, NULL)==FALSE || strlen(cmd_stdout)==0)
-	{
-		g_free(cmd_stdout);
-		return NULL;
-	}
-	else
-	{
-		//remove trailing newline
-		if(cmd_stdout[strlen(cmd_stdout)-1]=='\n')
-		{
-			cmd_stdout[strlen(cmd_stdout)-1]='\0';
-		}
-		return cmd_stdout;
 	}
 }
 
