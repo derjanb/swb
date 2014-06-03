@@ -19,4 +19,6 @@ One can also bind keys and events to execute scripts. See events.h and keys.h fo
 I use an adblocking stylesheet and privoxy.
 
 ## Follow hints?!
+This is a feature available in vimperator, pentadactyl and so on. It's great.
+
 Default configuration works with the script from suckless surf. You could also code your own with javascript (and shell script if you'd like).
