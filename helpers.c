@@ -67,7 +67,7 @@ void set_command_mode(Browser *b, char *NOT_USED)
 
 void load_uri(WebKitWebView *wv, char *uri)
 {
-	if(uri!=NULL)
+	if(uri!=NULL && strlen(uri)>=2)
 	{
 		char *uri_tmp = strstr(uri, "://")!=NULL ? g_strdup(uri) : g_strdup_printf("http://%s", uri);
 		webkit_web_view_load_uri(wv, uri_tmp);
