@@ -4,7 +4,9 @@
 A minimal web browser based on webkitgtk.
 
 ## Current state
-I use it as my everyday browser. It seems rather stable.
+For a while I used this as my daily browser. However, webkitgtk have proven to be much
+to unstable to actually use. If you decide to use this browser, prepare for segfaults from
+webkitgtk.
 
 ## Why?
 Because other minimal web browsers are not based on the webkit2 API.
